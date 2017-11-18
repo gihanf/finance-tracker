@@ -1,18 +1,21 @@
 package com.gihan.model;
 
-import java.util.Currency;
+import java.math.BigDecimal;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Expense {
 
-    private Currency amount;
+    private BigDecimal amount;
     private String name;
 
-    public Expense(Currency amount, String name) {
+    public Expense(BigDecimal amount, String name) {
         this.amount = amount;
         this.name = name;
     }
 
-    public Currency getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
@@ -25,13 +28,13 @@ public class Expense {
         return super.toString();
     }
 
-//    @Override
-//    public boolean equals(Object other) {
-//        return EqualsBuilder.reflectionEquals(this, other);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return HashCodeBuilder.reflectionHashCode(this);
-//    }
+    @Override
+    public boolean equals(Object other) {
+        return EqualsBuilder.reflectionEquals(this, other);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 }
