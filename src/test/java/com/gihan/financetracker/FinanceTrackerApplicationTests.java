@@ -1,5 +1,9 @@
 package com.gihan.financetracker;
 
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,6 +15,7 @@ public class FinanceTrackerApplicationTests {
 
 	@Test
 	public void contextLoads() {
-	}
+        assertThat("asd", is("bob"));
+    }
 
 }
