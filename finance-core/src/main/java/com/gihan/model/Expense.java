@@ -1,6 +1,11 @@
 package com.gihan.model;
 
+import static java.time.LocalDate.now;
+
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -9,10 +14,14 @@ public class Expense {
 
     private BigDecimal amount;
     private String name;
+    private Frequency frequency;
+    private LocalDate firstPaymentDate;
 
-    public Expense(BigDecimal amount, String name) {
+    public Expense(BigDecimal amount, String name, Frequency frequency, LocalDate firstPaymentDate) {
         this.amount = amount;
         this.name = name;
+        this.frequency = frequency;
+        this.firstPaymentDate = firstPaymentDate;
     }
 
     public BigDecimal getAmount() {
@@ -21,6 +30,37 @@ public class Expense {
 
     public String getName() {
         return name;
+    }
+
+    public Frequency getFrequency() {
+        return frequency;
+    }
+
+    public Optional<LocalDate> getNextPaymentDate() {
+        if (frequency == Frequency.ONCE_OFF) {
+            if (firstPaymentDate.isAfter(now())) {
+                return Optional.of(firstPaymentDate);
+            }
+            return Optional.empty();
+        }
+        if (frequency == Frequency.MONTHLY) {
+            if (firstPaymentDate.isBefore(now()) || firstPaymentDate.isEqual(now())) {
+                LocalDate nextPaymentDate = firstPaymentDate;
+                while (nextPaymentDate.isBefore(now()) || nextPaymentDate.isEqual(now())) {
+                    nextPaymentDate = nextPaymentDate.plusMonths(1);
+                }
+                return Optional.of(nextPaymentDate);
+            }
+            return Optional.of(firstPaymentDate);
+        }
+        return Optional.empty();
+    }
+
+    public Stream<LocalDate> getNextPaymentDates() {
+        Optional<LocalDate> nextPaymentDate = getNextPaymentDate();
+        return nextPaymentDate
+                .map(nextDate -> Stream.iterate(nextDate, d -> d.plusMonths(1)))
+                .orElseGet(Stream::empty);
     }
 
     @Override
@@ -37,4 +77,5 @@ public class Expense {
     public int hashCode() {
         return HashCodeBuilder.reflectionHashCode(this);
     }
+
 }
