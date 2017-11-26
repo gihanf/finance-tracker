@@ -19,6 +19,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses(value = {
         ExpenseTest.OnceOffExpenses.class,
+        ExpenseTest.WeeklyExpenses.class,
         ExpenseTest.MonthlyExpenses.class
 })
 public class ExpenseTest {
@@ -26,29 +27,29 @@ public class ExpenseTest {
     public static class OnceOffExpenses {
 
         @Test
-        public void shouldReturnEmptyOptional_whenExpenseIsOnceOff_andInThePast() throws Exception {
+        public void shouldReturnEmptyOptional_whenFetchingNextPaymentDate_forExpense_inThePast() throws Exception {
             Expense expenseInThePast = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, LocalDate.of(1980, 5, 7));
 
             assertThat(expenseInThePast.getNextPaymentDate(), is(Optional.empty()));
         }
 
         @Test
-        public void shouldReturnEmptyOptional_whenExpenseIsOnceOff_andOnCurrentDate() throws Exception {
+        public void shouldReturnEmptyOptional_whenFetchingNextPaymentDate_forExpense_onCurrentDate() throws Exception {
             Expense expenseOnCurrentDate = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, now());
 
             assertThat(expenseOnCurrentDate.getNextPaymentDate(), is(Optional.empty()));
         }
 
         @Test
-        public void shouldReturnFirstPaymentDate_whenExpenseIsOnceOff_andIsInFuture() throws Exception {
-            LocalDate futureDate = LocalDate.of(3020, 5, 7);
-            Expense futureExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, futureDate);
+        public void shouldReturnFirstPaymentDate_whenFetchingNextPaymentDate_forExpense_inTheFuture() throws Exception {
+            LocalDate firstPaymentDate = LocalDate.of(3020, 5, 7);
+            Expense futureExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, firstPaymentDate);
 
-            assertThat(futureExpense.getNextPaymentDate(), is(Optional.of(futureDate)));
+            assertThat(futureExpense.getNextPaymentDate(), is(Optional.of(firstPaymentDate)));
         }
 
         @Test
-        public void shouldReturnEmptyOptional_whenExpenseIsOnceOff_andThereAreNoFuturePayments() throws Exception {
+        public void shouldReturnEmptyStream_whenFetchingNextPaymentDate_andThereAreNoFuturePayments() throws Exception {
             LocalDate pastDate = now().minusDays(1);
             Expense futureExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, pastDate);
 
@@ -60,15 +61,7 @@ public class ExpenseTest {
     public static class MonthlyExpenses {
 
         @Test
-        public void shouldReturnFirstPaymentDate_whenExpenseIsMonthly_andIsInFuture() throws Exception {
-            LocalDate futureDate = LocalDate.of(3020, 5, 7);
-            Expense recurringExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, futureDate);
-
-            assertThat(recurringExpense.getNextPaymentDate(), is(Optional.of(futureDate)));
-        }
-
-        @Test
-        public void shouldReturnNextPaymentDate_whenExpenseIsMonthly_andIsOnCurrentDay() throws Exception {
+        public void shouldReturnNextPaymentDate_whenFetchingNextPaymentDate_forExpense_onCurrentDate() throws Exception {
             LocalDate currentDate = now();
             Expense recurringExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, currentDate);
 
@@ -76,7 +69,15 @@ public class ExpenseTest {
         }
 
         @Test
-        public void shouldReturnNextPaymentDate_whenExpenseIsMonthly_andIsAfter_firstPaymentDate() throws Exception {
+        public void shouldReturnFirstPaymentDate_whenFetchingNextPaymentDate_forExpense_inTheFuture() throws Exception {
+            LocalDate firstPaymentDate = LocalDate.of(3020, 5, 7);
+            Expense recurringExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, firstPaymentDate);
+
+            assertThat(recurringExpense.getNextPaymentDate(), is(Optional.of(firstPaymentDate)));
+        }
+
+        @Test
+        public void shouldReturnNextPaymentDate_whenFetchingNextPaymentDate_forRecurringExpense_andIsAfter_firstPaymentDate() throws Exception {
             LocalDate pastDate = now().minusMonths(4);
             Expense recurringExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, pastDate);
 
@@ -96,5 +97,47 @@ public class ExpenseTest {
             List<LocalDate> nextFourMonths = recurringExpense.getNextPaymentDates().limit(4).collect(Collectors.toList());
             assertThat(nextFourMonths, is(expectedPaymentDates));
         }
+    }
+
+    public static class WeeklyExpenses {
+
+        @Test
+        public void shouldReturnFirstPaymentDate_whenFetchingNextPaymentDate_forExpense_inTheFuture() throws Exception {
+            LocalDate futureDate = LocalDate.of(3020, 5, 7);
+            Expense recurringExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, futureDate);
+
+            assertThat(recurringExpense.getNextPaymentDate(), is(Optional.of(futureDate)));
+        }
+
+        @Test
+        public void shouldReturnNextPaymentDate_whenFetchingNextPaymentDate_forExpense_onCurrentDate() throws Exception {
+            LocalDate currentDate = now();
+            Expense recurringExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, currentDate);
+
+            assertThat(recurringExpense.getNextPaymentDate(), is(Optional.of(currentDate.plusWeeks(1))));
+        }
+
+        @Test
+        public void shouldReturnNextPaymentDate_whenFetchingNextPaymentDate_forExpenseAfter_firstPaymentDate() throws Exception {
+            LocalDate pastDate = now().minusWeeks(4);
+            Expense recurringExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, pastDate);
+
+            assertThat(recurringExpense.getNextPaymentDate(), is(Optional.of(pastDate.plusWeeks(5))));
+        }
+
+        @Test
+        public void shouldReturnNextPayments() throws Exception {
+            Expense recurringExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, now().minusWeeks(2));
+
+            List<LocalDate> expectedPaymentDates = Arrays.asList(
+                    now().plusWeeks(1),
+                    now().plusWeeks(2),
+                    now().plusWeeks(3),
+                    now().plusWeeks(4));
+
+            List<LocalDate> nextFourMonths = recurringExpense.getNextPaymentDates().limit(4).collect(Collectors.toList());
+            assertThat(nextFourMonths, is(expectedPaymentDates));
+        }
+
     }
 }
