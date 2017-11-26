@@ -85,7 +85,7 @@ public class ExpenseTest {
 
         @Test
         public void shouldReturnNextPayments() throws Exception {
-            Expense recurringExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, now());
+            Expense recurringExpense = new Expense(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, now().minusMonths(2));
 
             List<LocalDate> expectedPaymentDates = Arrays.asList(
                     now().plusMonths(1),

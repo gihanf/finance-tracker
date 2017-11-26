@@ -1,10 +1,11 @@
 .gradle
-/build/
-/finance-core/build/
-
 !gradle/wrapper/gradle-wrapper.jar
+
+/build/
 /out
 /finance-core/out/
+/finance-core/build/
+/finance-tracker/
 
 ### STS ###
 .apt_generated
@@ -19,5 +20,3 @@
 *.iws
 *.iml
 *.ipr
-
-/finance-tracker/

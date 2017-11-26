@@ -37,22 +37,25 @@ public class Expense {
     }
 
     public Optional<LocalDate> getNextPaymentDate() {
-        if (frequency == Frequency.ONCE_OFF) {
-            if (firstPaymentDate.isAfter(now())) {
+        switch (frequency) {
+            case ONCE_OFF: {
+                if (firstPaymentDate.isAfter(now())) {
+                    return Optional.of(firstPaymentDate);
+                }
+                return Optional.empty();
+            }
+            case MONTHLY: {
+                if (!firstPaymentDate.isAfter(now())) {
+                    LocalDate nextPaymentDate = firstPaymentDate;
+                    while (!nextPaymentDate.isAfter(now())) {
+                        nextPaymentDate = nextPaymentDate.plusMonths(1);
+                    }
+                    return Optional.of(nextPaymentDate);
+                }
                 return Optional.of(firstPaymentDate);
             }
-            return Optional.empty();
         }
-        if (frequency == Frequency.MONTHLY) {
-            if (firstPaymentDate.isBefore(now()) || firstPaymentDate.isEqual(now())) {
-                LocalDate nextPaymentDate = firstPaymentDate;
-                while (nextPaymentDate.isBefore(now()) || nextPaymentDate.isEqual(now())) {
-                    nextPaymentDate = nextPaymentDate.plusMonths(1);
-                }
-                return Optional.of(nextPaymentDate);
-            }
-            return Optional.of(firstPaymentDate);
-        }
+
         return Optional.empty();
     }
 
