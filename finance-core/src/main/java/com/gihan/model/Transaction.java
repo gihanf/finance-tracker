@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class Expense {
+public class Transaction {
 
     private BigDecimal amount;
     private String name;
@@ -21,7 +21,7 @@ public class Expense {
     private static final TemporalAdjuster WEEKLY_ADJUSTER = TemporalAdjusters.ofDateAdjuster(d -> d.plusWeeks(1));
     private static final TemporalAdjuster MONTHLY_ADJUSTER = TemporalAdjusters.ofDateAdjuster(d -> d.plusMonths(1));
 
-    public Expense(BigDecimal amount, String name, Frequency frequency, LocalDate firstPaymentDate) {
+    public Transaction(BigDecimal amount, String name, Frequency frequency, LocalDate firstPaymentDate) {
         this.amount = amount;
         this.name = name;
         this.frequency = frequency;
