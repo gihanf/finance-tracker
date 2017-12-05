@@ -6,6 +6,8 @@
 /finance-core/out/
 /finance-core/build/
 /finance-tracker/
+/forecast/out/
+/forecast/build/
 
 ### STS ###
 .apt_generated

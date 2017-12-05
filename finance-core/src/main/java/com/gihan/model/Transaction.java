@@ -63,6 +63,16 @@ public class Transaction {
         return Optional.empty();
     }
 
+    public Stream<LocalDate> getNextPaymentDates() {
+        Optional<LocalDate> nextPaymentDate = getNextPaymentDate();
+
+        if (nextPaymentDate.isPresent()) {
+            LocalDate nextDate = nextPaymentDate.get();
+            return Stream.iterate(nextDate, d -> this.getNextPaymentDate(d).get());
+        }
+        return Stream.empty();
+    }
+
     private Optional<LocalDate> getNextRecurringDate(TemporalAdjuster adjuster, LocalDate date) {
         if (!firstPaymentDate.isAfter(date)) {
             LocalDate nextPaymentDate = firstPaymentDate;
@@ -72,16 +82,6 @@ public class Transaction {
             return Optional.of(nextPaymentDate);
         }
         return Optional.of(firstPaymentDate);
-    }
-
-    public Stream<LocalDate> getNextPaymentDates() {
-        Optional<LocalDate> nextPaymentDate = getNextPaymentDate();
-
-        if (nextPaymentDate.isPresent()) {
-            LocalDate nextDate = nextPaymentDate.get();
-            return Stream.iterate(nextDate, d -> this.getNextPaymentDate(d).get());
-        }
-        return Stream.empty();
     }
 
     @Override
