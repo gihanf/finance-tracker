@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.gihan.model.Account;
@@ -20,9 +19,4 @@ public class ForecasterTest {
         assertThat(forecastedBalance, is(account.getBalance()));
     }
     
-    @Test
-    public void shouldReturnForecastedBalance_affectedBy() throws Exception {
-        Assert.fail();
-        
-    }
 }
