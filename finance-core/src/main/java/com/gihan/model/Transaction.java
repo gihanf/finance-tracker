@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class Transaction {
+public abstract class Transaction {
 
     private BigDecimal amount;
     private String name;

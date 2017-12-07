@@ -28,14 +28,14 @@ public class TransactionTest {
 
         @Test
         public void shouldReturnEmptyOptional_whenFetchingNextPaymentDate_forTransaction_inThePast() throws Exception {
-            Transaction transactionInThePast = new Transaction(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, LocalDate.of(1980, 5, 7));
+            Transaction transactionInThePast = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, LocalDate.of(1980, 5, 7));
 
             assertThat(transactionInThePast.getNextPaymentDate(), is(Optional.empty()));
         }
 
         @Test
         public void shouldReturnEmptyOptional_whenFetchingNextPaymentDate_forTransaction_onCurrentDate() throws Exception {
-            Transaction transactionOnCurrentDate = new Transaction(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, now());
+            Transaction transactionOnCurrentDate = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, now());
 
             assertThat(transactionOnCurrentDate.getNextPaymentDate(), is(Optional.empty()));
         }
@@ -43,7 +43,7 @@ public class TransactionTest {
         @Test
         public void shouldReturnFirstPaymentDate_whenFetchingNextPaymentDate_forTransaction_inTheFuture() throws Exception {
             LocalDate firstPaymentDate = LocalDate.of(3020, 5, 7);
-            Transaction futureTransaction = new Transaction(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, firstPaymentDate);
+            Transaction futureTransaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, firstPaymentDate);
 
             assertThat(futureTransaction.getNextPaymentDate(), is(Optional.of(firstPaymentDate)));
         }
@@ -51,7 +51,7 @@ public class TransactionTest {
         @Test
         public void shouldReturnEmptyStream_whenFetchingNextPaymentDate_andThereAreNoFuturePayments() throws Exception {
             LocalDate pastDate = now().minusDays(1);
-            Transaction futureTransaction = new Transaction(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, pastDate);
+            Transaction futureTransaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, pastDate);
 
             Stream<LocalDate> nextPaymentDates = futureTransaction.getNextPaymentDates();
             assertThat(nextPaymentDates.count(), is(0L));
@@ -63,7 +63,7 @@ public class TransactionTest {
         @Test
         public void shouldReturnNextPaymentDate_whenFetchingNextPaymentDate_forTransaction_onCurrentDate() throws Exception {
             LocalDate currentDate = now();
-            Transaction recurringTransaction = new Transaction(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, currentDate);
+            Transaction recurringTransaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, currentDate);
 
             assertThat(recurringTransaction.getNextPaymentDate(), is(Optional.of(currentDate.plusMonths(1))));
         }
@@ -71,7 +71,7 @@ public class TransactionTest {
         @Test
         public void shouldReturnFirstPaymentDate_whenFetchingNextPaymentDate_forTransaction_inTheFuture() throws Exception {
             LocalDate firstPaymentDate = LocalDate.of(3020, 5, 7);
-            Transaction recurringTransaction = new Transaction(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, firstPaymentDate);
+            Transaction recurringTransaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, firstPaymentDate);
 
             assertThat(recurringTransaction.getNextPaymentDate(), is(Optional.of(firstPaymentDate)));
         }
@@ -79,14 +79,14 @@ public class TransactionTest {
         @Test
         public void shouldReturnNextPaymentDate_whenFetchingNextPaymentDate_forRecurringTransaction_andIsAfter_firstPaymentDate() throws Exception {
             LocalDate pastDate = now().minusMonths(4);
-            Transaction recurringTransaction = new Transaction(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, pastDate);
+            Transaction recurringTransaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, pastDate);
 
             assertThat(recurringTransaction.getNextPaymentDate(), is(Optional.of(pastDate.plusMonths(5))));
         }
 
         @Test
         public void shouldReturnNextPayments() throws Exception {
-            Transaction recurringTransaction = new Transaction(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, now().minusMonths(2));
+            Transaction recurringTransaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.MONTHLY, now().minusMonths(2));
 
             List<LocalDate> expectedPaymentDates = Arrays.asList(
                     now().plusMonths(1),
@@ -104,7 +104,7 @@ public class TransactionTest {
         @Test
         public void shouldReturnFirstPaymentDate_whenFetchingNextPaymentDate_forTransaction_inTheFuture() throws Exception {
             LocalDate futureDate = LocalDate.of(3020, 5, 7);
-            Transaction recurringTransaction = new Transaction(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, futureDate);
+            Transaction recurringTransaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, futureDate);
 
             assertThat(recurringTransaction.getNextPaymentDate(), is(Optional.of(futureDate)));
         }
@@ -112,7 +112,7 @@ public class TransactionTest {
         @Test
         public void shouldReturnNextPaymentDate_whenFetchingNextPaymentDate_forTransaction_onCurrentDate() throws Exception {
             LocalDate currentDate = now();
-            Transaction recurringTransaction = new Transaction(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, currentDate);
+            Transaction recurringTransaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, currentDate);
 
             assertThat(recurringTransaction.getNextPaymentDate(), is(Optional.of(currentDate.plusWeeks(1))));
         }
@@ -120,14 +120,14 @@ public class TransactionTest {
         @Test
         public void shouldReturnNextPaymentDate_whenFetchingNextPaymentDate_forTransactionAfter_firstPaymentDate() throws Exception {
             LocalDate pastDate = now().minusWeeks(4);
-            Transaction recurringTransaction = new Transaction(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, pastDate);
+            Transaction recurringTransaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, pastDate);
 
             assertThat(recurringTransaction.getNextPaymentDate(), is(Optional.of(pastDate.plusWeeks(5))));
         }
 
         @Test
         public void shouldReturnNextPayments() throws Exception {
-            Transaction recurringTransaction = new Transaction(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, now().minusWeeks(2));
+            Transaction recurringTransaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, now().minusWeeks(2));
 
             List<LocalDate> expectedPaymentDates = Arrays.asList(
                     now().plusWeeks(1),
