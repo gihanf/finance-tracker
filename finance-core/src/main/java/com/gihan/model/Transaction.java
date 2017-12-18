@@ -13,19 +13,21 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public abstract class Transaction {
+    private static final TemporalAdjuster WEEKLY_ADJUSTER = TemporalAdjusters.ofDateAdjuster(d -> d.plusWeeks(1));
+    private static final TemporalAdjuster MONTHLY_ADJUSTER = TemporalAdjusters.ofDateAdjuster(d -> d.plusMonths(1));
 
     private BigDecimal amount;
     private String name;
     private Frequency frequency;
     private LocalDate firstPaymentDate;
-    private static final TemporalAdjuster WEEKLY_ADJUSTER = TemporalAdjusters.ofDateAdjuster(d -> d.plusWeeks(1));
-    private static final TemporalAdjuster MONTHLY_ADJUSTER = TemporalAdjusters.ofDateAdjuster(d -> d.plusMonths(1));
+    private TransactionType transactionType;
 
-    public Transaction(BigDecimal amount, String name, Frequency frequency, LocalDate firstPaymentDate) {
+    public Transaction(BigDecimal amount, String name, Frequency frequency, LocalDate firstPaymentDate, TransactionType transactionType) {
         this.amount = amount;
         this.name = name;
         this.frequency = frequency;
         this.firstPaymentDate = firstPaymentDate;
+        this.transactionType = transactionType;
     }
 
     public BigDecimal getAmount() {
@@ -44,19 +46,19 @@ public abstract class Transaction {
         return getNextPaymentDate(now());
     }
 
-    public Optional<LocalDate> getNextPaymentDate(LocalDate date) {
+    public Optional<LocalDate> getNextPaymentDate(LocalDate fromDate) {
         switch (frequency) {
             case ONCE_OFF: {
-                if (firstPaymentDate.isAfter(date)) {
+                if (firstPaymentDate.isAfter(fromDate)) {
                     return Optional.of(firstPaymentDate);
                 }
                 return Optional.empty();
             }
             case WEEKLY: {
-                return getNextRecurringDate(WEEKLY_ADJUSTER, date);
+                return getNextRecurringDate(WEEKLY_ADJUSTER, fromDate);
             }
             case MONTHLY: {
-                return getNextRecurringDate(MONTHLY_ADJUSTER, date);
+                return getNextRecurringDate(MONTHLY_ADJUSTER, fromDate);
             }
         }
 
@@ -71,6 +73,24 @@ public abstract class Transaction {
             return Stream.iterate(nextDate, d -> this.getNextPaymentDate(d).get());
         }
         return Stream.empty();
+    }
+
+    public int numberOfTransactionsBeforeDate(LocalDate searchDateExclusive) {
+        if (!getNextPaymentDate().isPresent()) {
+            return 0;
+        }
+        int numTxns = 0;
+        Optional<LocalDate> nextDate = getNextPaymentDate();
+        while(nextDate.isPresent()) {
+            LocalDate date = nextDate.get();
+            if (date.isBefore(searchDateExclusive)) {
+                numTxns++;
+            } else {
+                break;
+            }
+            nextDate = this.getNextPaymentDate(date);
+        }
+        return numTxns;
     }
 
     private Optional<LocalDate> getNextRecurringDate(TemporalAdjuster adjuster, LocalDate date) {

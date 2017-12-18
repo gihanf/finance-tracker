@@ -56,6 +56,30 @@ public class TransactionTest {
             Stream<LocalDate> nextPaymentDates = futureTransaction.getNextPaymentDates();
             assertThat(nextPaymentDates.count(), is(0L));
         }
+
+        @Test
+        public void shouldReturn_one_ifTransactionDate_isBeforeSearchDate() throws Exception {
+            Transaction futureTransaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, now().plusDays(1));
+
+            int txnsBeforeSearchDate = futureTransaction.numberOfTransactionsBeforeDate(now().plusDays(2));
+            assertThat(txnsBeforeSearchDate, is(1));
+        }
+
+        @Test
+        public void shouldReturn_zero_ifTransactionDate_isOnSearchDate() throws Exception {
+            Transaction transaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, now());
+
+            int txnsBeforeSearchDate = transaction.numberOfTransactionsBeforeDate(now());
+            assertThat(txnsBeforeSearchDate, is(0));
+        }
+
+        @Test
+        public void shouldReturnThree_transactionsBeforeSearchDate() throws Exception {
+            Transaction transaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.WEEKLY, now());
+
+            int txnsBeforeSearchDate = transaction.numberOfTransactionsBeforeDate(now().plusWeeks(4).plusDays(1));
+            assertThat(txnsBeforeSearchDate, is(4));
+        }
     }
 
     public static class MonthlyTransactions {
