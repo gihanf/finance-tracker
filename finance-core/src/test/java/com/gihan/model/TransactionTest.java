@@ -34,10 +34,11 @@ public class TransactionTest {
         }
 
         @Test
-        public void shouldReturnEmptyOptional_whenFetchingNextPaymentDate_forTransaction_onCurrentDate() throws Exception {
-            Transaction transactionOnCurrentDate = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, now());
+        public void shouldReturnCurrentDate_whenFetchingNextPaymentDate_forTransaction_onCurrentDate() throws Exception {
+            LocalDate currentDate = now();
+            Transaction transactionOnCurrentDate = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, currentDate);
 
-            assertThat(transactionOnCurrentDate.getNextPaymentDate(), is(Optional.empty()));
+            assertThat(transactionOnCurrentDate.getNextPaymentDate(), is(Optional.of(currentDate)));
         }
 
         @Test
@@ -66,11 +67,11 @@ public class TransactionTest {
         }
 
         @Test
-        public void shouldReturn_zero_ifTransactionDate_isOnSearchDate() throws Exception {
+        public void shouldReturn_one_ifTransactionDate_isOnSearchDate() throws Exception {
             Transaction transaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, now());
 
             int txnsBeforeSearchDate = transaction.numberOfTransactionsBeforeDate(now());
-            assertThat(txnsBeforeSearchDate, is(0));
+            assertThat(txnsBeforeSearchDate, is(1));
         }
 
         @Test

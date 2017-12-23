@@ -49,7 +49,7 @@ public abstract class Transaction {
     public Optional<LocalDate> getNextPaymentDate(LocalDate fromDate) {
         switch (frequency) {
             case ONCE_OFF: {
-                if (firstPaymentDate.isAfter(fromDate)) {
+                if (firstPaymentDate.isAfter(fromDate) || firstPaymentDate.isEqual(fromDate)) {
                     return Optional.of(firstPaymentDate);
                 }
                 return Optional.empty();
@@ -75,7 +75,7 @@ public abstract class Transaction {
         return Stream.empty();
     }
 
-    public int numberOfTransactionsBeforeDate(LocalDate searchDateExclusive) {
+    public int numberOfTransactionsBeforeDate(LocalDate searchDateInclusive) {
         if (!getNextPaymentDate().isPresent()) {
             return 0;
         }
@@ -83,12 +83,17 @@ public abstract class Transaction {
         Optional<LocalDate> nextDate = getNextPaymentDate();
         while(nextDate.isPresent()) {
             LocalDate date = nextDate.get();
-            if (date.isBefore(searchDateExclusive)) {
+            if (!date.isAfter(searchDateInclusive)) {
                 numTxns++;
             } else {
                 break;
             }
             nextDate = this.getNextPaymentDate(date);
+            if (nextDate.isPresent()) {
+                if(nextDate.get().isEqual(date)) {
+                    break;
+                }
+            }
         }
         return numTxns;
     }
