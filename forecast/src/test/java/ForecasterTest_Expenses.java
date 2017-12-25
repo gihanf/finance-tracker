@@ -12,7 +12,7 @@ import com.gihan.model.Account;
 import com.gihan.model.Expense;
 import com.gihan.model.Frequency;
 
-public class ForecasterTest {
+public class ForecasterTest_Expenses {
 
     @Test
     public void shouldForecastSameBalance_whenThereAreNoTransactionsToApply() throws Exception {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.gihan.model.Account;
 import com.gihan.model.Transaction;
+import com.gihan.model.TransactionType;
 
 public class Forecaster {
 
@@ -15,7 +16,8 @@ public class Forecaster {
         for (Transaction transaction : transactions) {
             int txnsBeforeForecast = transaction.numberOfTransactionsBeforeDate(forecastDate);
             BigDecimal adjustmentAmount = transaction.getAmount().multiply(new BigDecimal(txnsBeforeForecast));
-            modifiedBalance = modifiedBalance.subtract(adjustmentAmount);
+            modifiedBalance = transaction.getTransactionType().equals(TransactionType.DEBIT)
+                    ? modifiedBalance.subtract(adjustmentAmount) : modifiedBalance.add(adjustmentAmount);
         }
 
         return modifiedBalance;

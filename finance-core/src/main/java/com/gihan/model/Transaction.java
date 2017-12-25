@@ -42,6 +42,10 @@ public abstract class Transaction {
         return frequency;
     }
 
+    public TransactionType getTransactionType() {
+        return transactionType;
+    }
+
     public Optional<LocalDate> getNextPaymentDate() {
         return getNextPaymentDate(now());
     }
@@ -123,5 +127,4 @@ public abstract class Transaction {
     public int hashCode() {
         return HashCodeBuilder.reflectionHashCode(this);
     }
-
 }
