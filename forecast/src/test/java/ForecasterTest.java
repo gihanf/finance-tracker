@@ -23,23 +23,22 @@ public class ForecasterTest {
     }
 
     @Test
-    public void shouldForecastBalance_affectedByExpenses() throws Exception {
+    public void shouldForecastSameBalance_whenExpenseIsInThePast() throws Exception {
+        Account account = new Account(new BigDecimal(100L), "savings");
+        Expense pastExpense = new Expense(new BigDecimal(25L), "phone bill", Frequency.MONTHLY, LocalDate.now().minusDays(1));
+        BigDecimal forecastedBalance = Forecaster.forecastBalanceForAccount(account, LocalDate.now(), Collections.singletonList(pastExpense));
+
+        assertThat(forecastedBalance, is(account.getBalance()));
+    }
+
+    @Test
+    public void shouldForecastBalance_affectedBy_singleExpense() throws Exception {
         Account account = new Account(new BigDecimal(100L), "savings");
         Expense phoneBill = new Expense(new BigDecimal(25L), "phone bill", Frequency.MONTHLY, LocalDate.now().plusWeeks(1));
-        
+
         BigDecimal forecastedBalance = Forecaster.forecastBalanceForAccount(account, LocalDate.now().plusMonths(1), Collections.singletonList(phoneBill));
 
         assertThat(forecastedBalance, is(new BigDecimal(75L)));
-    }
-    
-    @Test
-    public void shouldForecastBalance_affectedByMultipleOccurrencesOfSameExpense() throws Exception {
-        Account account = new Account(new BigDecimal(100L), "savings");
-        Expense phoneBill = new Expense(new BigDecimal(25L), "phone bill", Frequency.MONTHLY, LocalDate.now().plusWeeks(1));
-
-        BigDecimal forecastedBalance = Forecaster.forecastBalanceForAccount(account, LocalDate.now().plusMonths(2), Collections.singletonList(phoneBill));
-
-        assertThat(forecastedBalance, is(new BigDecimal(50L)));
     }
 
     @Test
@@ -54,7 +53,17 @@ public class ForecasterTest {
     }
 
     @Test
-    public void shouldForecasetBalance_affectedBy_expenseLandingOnSearchDate() throws Exception {
+    public void shouldForecastBalance_affectedBy_multipleOccurrencesOfSameExpense() throws Exception {
+        Account account = new Account(new BigDecimal(100L), "savings");
+        Expense phoneBill = new Expense(new BigDecimal(25L), "phone bill", Frequency.MONTHLY, LocalDate.now().plusWeeks(1));
+
+        BigDecimal forecastedBalance = Forecaster.forecastBalanceForAccount(account, LocalDate.now().plusMonths(2), Collections.singletonList(phoneBill));
+
+        assertThat(forecastedBalance, is(new BigDecimal(50L)));
+    }
+
+    @Test
+    public void shouldForecastBalance_affectedBy_expenseLandingOnSearchDate() throws Exception {
         Account account = new Account(new BigDecimal(100L), "savings");
         Expense travel = new Expense(new BigDecimal(40L), "travel", Frequency.WEEKLY, LocalDate.now().plusWeeks(1));
 
@@ -62,5 +71,15 @@ public class ForecasterTest {
 
         assertThat(forecastedBalance, is(new BigDecimal(60L)));
     }
-    
+
+    @Test
+    public void shouldForecastBalance_affectedBy_twoOneOffExpenses() throws Exception {
+        Account account = new Account(new BigDecimal(100L), "savings");
+        Expense travel = new Expense(new BigDecimal(40L), "travel", Frequency.ONCE_OFF, LocalDate.now().plusWeeks(1));
+        Expense someBill = new Expense(new BigDecimal(40L), "travel", Frequency.ONCE_OFF, LocalDate.now().plusWeeks(1));
+
+        BigDecimal forecastedBalance = Forecaster.forecastBalanceForAccount(account, LocalDate.now().plusWeeks(1), Arrays.asList(travel, someBill));
+
+        assertThat(forecastedBalance, is(new BigDecimal(20L)));
+    }
 }
