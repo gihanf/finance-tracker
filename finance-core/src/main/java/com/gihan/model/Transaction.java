@@ -81,12 +81,22 @@ public abstract class Transaction {
     }
 
     public int numberOfTransactionsBeforeDate(LocalDate searchDate) {
-        if (!getNextPaymentDate().isPresent()) {
-            return 0;
-        }
-        int numTxns = 0;
+        return isRecurring() ? getRecurringTransactionsBeforeDate(searchDate) : getOnceOffTransactionsBeforeDate(searchDate);
+    }
+
+    private int getOnceOffTransactionsBeforeDate(LocalDate searchDate) {
         Optional<LocalDate> nextDate = getNextPaymentDate();
-        while(nextDate.isPresent()) {
+        if (nextDate.isPresent()) {
+            LocalDate date = nextDate.get();
+            return date.isBefore(searchDate) ? 1 : 0;
+        }
+        return 0;
+    }
+
+    private int getRecurringTransactionsBeforeDate(LocalDate searchDate) {
+        Optional<LocalDate> nextDate = getNextPaymentDate();
+        int numTxns = 0;
+        while (nextDate.isPresent()) {
             LocalDate date = nextDate.get();
             if (date.isAfter(searchDate) || date.isEqual(searchDate)) {
                 break;
@@ -94,12 +104,6 @@ public abstract class Transaction {
                 numTxns++;
             }
             nextDate = this.getNextPaymentDate(date);
-            // TODO: Try and simplify this block.. only neccessary for onceOff txns
-            if (nextDate.isPresent()) {
-                if(nextDate.get().isEqual(date)) {
-                    break;
-                }
-            }
         }
         return numTxns;
     }
@@ -113,6 +117,10 @@ public abstract class Transaction {
             return Optional.of(nextPaymentDate);
         }
         return Optional.of(firstPaymentDate);
+    }
+
+    private boolean isRecurring() {
+        return frequency != Frequency.ONCE_OFF;
     }
 
     @Override
