@@ -53,6 +53,7 @@ public abstract class Transaction {
     public Optional<LocalDate> getNextPaymentDate(LocalDate fromDate) {
         switch (frequency) {
             case ONCE_OFF: {
+                // TODO: Try and make this block just the same as the other frequencies
                 if (firstPaymentDate.isAfter(fromDate) || firstPaymentDate.isEqual(fromDate)) {
                     return Optional.of(firstPaymentDate);
                 }
@@ -79,7 +80,7 @@ public abstract class Transaction {
         return Stream.empty();
     }
 
-    public int numberOfTransactionsBeforeDate(LocalDate searchDateInclusive) {
+    public int numberOfTransactionsBeforeDate(LocalDate searchDate) {
         if (!getNextPaymentDate().isPresent()) {
             return 0;
         }
@@ -87,12 +88,13 @@ public abstract class Transaction {
         Optional<LocalDate> nextDate = getNextPaymentDate();
         while(nextDate.isPresent()) {
             LocalDate date = nextDate.get();
-            if (!date.isAfter(searchDateInclusive)) {
-                numTxns++;
-            } else {
+            if (date.isAfter(searchDate) || date.isEqual(searchDate)) {
                 break;
+            } else {
+                numTxns++;
             }
             nextDate = this.getNextPaymentDate(date);
+            // TODO: Try and simplify this block.. only neccessary for onceOff txns
             if (nextDate.isPresent()) {
                 if(nextDate.get().isEqual(date)) {
                     break;

@@ -67,11 +67,11 @@ public class TransactionTest {
         }
 
         @Test
-        public void shouldReturn_one_ifTransactionDate_isOnSearchDate() throws Exception {
+        public void shouldReturn_zero_ifTransactionDate_isOnSearchDate() throws Exception {
             Transaction transaction = new Expense(new BigDecimal("10"), "hair cut", Frequency.ONCE_OFF, now());
 
             int txnsBeforeSearchDate = transaction.numberOfTransactionsBeforeDate(now());
-            assertThat(txnsBeforeSearchDate, is(1));
+            assertThat(txnsBeforeSearchDate, is(0));
         }
 
         @Test

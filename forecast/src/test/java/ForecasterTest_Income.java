@@ -22,7 +22,7 @@ public class ForecasterTest_Income {
     }
 
     @Test
-    public void shouldForecastSameBalance_whenIncomeIsInThePast() throws Exception {
+    public void shouldForecastSameBalance_whenIncomeIs_inThePast() throws Exception {
         Account account = new Account(new BigDecimal(100L), "savings");
         Income pastIncome = new Income(new BigDecimal(25L), "rent", Frequency.MONTHLY, LocalDate.now().minusDays(1));
         BigDecimal forecastedBalance = Forecaster.forecastBalanceForAccount(account, LocalDate.now(), Collections.singletonList(pastIncome));
@@ -31,13 +31,13 @@ public class ForecasterTest_Income {
     }
 
     @Test
-    public void shouldForecastBalance_affectedBy_incomeLandingOnSearchDate() throws Exception {
+    public void shouldSameForecastBalance_whenIncomeIs_onSearchDate() throws Exception {
         Account account = new Account(new BigDecimal(100L), "savings");
         Income travel = new Income(new BigDecimal(40L), "travel", Frequency.WEEKLY, LocalDate.now().plusWeeks(1));
 
         BigDecimal forecastedBalance = Forecaster.forecastBalanceForAccount(account, LocalDate.now().plusWeeks(1), Collections.singletonList(travel));
 
-        assertThat(forecastedBalance, is(new BigDecimal(140L)));
+        assertThat(forecastedBalance, is(new BigDecimal(100L)));
     }
 
     @Test
@@ -74,8 +74,8 @@ public class ForecasterTest_Income {
     @Test
     public void shouldForecastBalance_affectedBy_twoOneOffIncomes() throws Exception {
         Account account = new Account(new BigDecimal(100L), "savings");
-        Income travel = new Income(new BigDecimal(40L), "lotto win", Frequency.ONCE_OFF, LocalDate.now().plusWeeks(1));
-        Income someBill = new Income(new BigDecimal(40L), "scratchie win", Frequency.ONCE_OFF, LocalDate.now().plusWeeks(1));
+        Income travel = new Income(new BigDecimal(40L), "lotto win", Frequency.ONCE_OFF, LocalDate.now().plusDays(1));
+        Income someBill = new Income(new BigDecimal(40L), "scratchie win", Frequency.ONCE_OFF, LocalDate.now().plusDays(2));
 
         BigDecimal forecastedBalance = Forecaster.forecastBalanceForAccount(account, LocalDate.now().plusWeeks(1), Arrays.asList(travel, someBill));
 
