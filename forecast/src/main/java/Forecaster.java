@@ -15,11 +15,18 @@ public class Forecaster {
         BigDecimal modifiedBalance = account.getBalance();
         for (Transaction transaction : transactions) {
             int txnsBeforeForecast = transaction.numberOfTransactionsBeforeDate(forecastDate);
-            BigDecimal adjustmentAmount = transaction.getAmount().multiply(new BigDecimal(txnsBeforeForecast));
-            modifiedBalance = transaction.getTransactionType().equals(TransactionType.DEBIT)
-                    ? modifiedBalance.subtract(adjustmentAmount) : modifiedBalance.add(adjustmentAmount);
+            BigDecimal adjustmentAmount = calculateAdjustmentAmount(transaction, txnsBeforeForecast);
+            modifiedBalance = applyAdjustment(modifiedBalance, adjustmentAmount, transaction.getTransactionType());
         }
 
         return modifiedBalance;
+    }
+
+    private static BigDecimal applyAdjustment(BigDecimal modifiedBalance, BigDecimal adjustmentAmount, TransactionType transactionType) {
+        return transactionType.equals(TransactionType.DEBIT) ? modifiedBalance.subtract(adjustmentAmount) : modifiedBalance.add(adjustmentAmount);
+    }
+
+    private static BigDecimal calculateAdjustmentAmount(Transaction transaction, int txnsBeforeForecast) {
+        return transaction.getAmount().multiply(new BigDecimal(txnsBeforeForecast));
     }
 }
