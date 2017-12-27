@@ -6,6 +6,6 @@ import java.time.LocalDate;
 public class Income extends Transaction {
 
     public Income(BigDecimal amount, String name, Frequency frequency, LocalDate firstPaymentDate) {
-        super(amount, name, frequency, firstPaymentDate, TransactionType.CREDIT);
+        super(amount, name, frequency, TransactionType.CREDIT, firstPaymentDate);
     }
 }

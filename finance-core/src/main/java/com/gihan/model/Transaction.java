@@ -22,7 +22,7 @@ public abstract class Transaction {
     private LocalDate firstPaymentDate;
     private TransactionType transactionType;
 
-    public Transaction(BigDecimal amount, String name, Frequency frequency, LocalDate firstPaymentDate, TransactionType transactionType) {
+    public Transaction(BigDecimal amount, String name, Frequency frequency, TransactionType transactionType, LocalDate firstPaymentDate) {
         this.amount = amount;
         this.name = name;
         this.frequency = frequency;
